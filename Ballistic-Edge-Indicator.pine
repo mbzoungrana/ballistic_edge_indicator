@@ -3658,8 +3658,8 @@ float beiCurrentSessionLow = inPMSession ? pmSessionLowPrice : inNYSession ? nyS
 float beiCurrentSessionRange = not na(beiCurrentSessionHigh) and not na(beiCurrentSessionLow) ? math.max(0.0, beiCurrentSessionHigh - beiCurrentSessionLow) : na
 float beiSessionRangeIndex = not na(beiCurrentSessionRange) and not na(currentATR) and currentATR > 0.0 ? beiCurrentSessionRange / currentATR : na
 string beiSessionRangeText = na(beiCurrentSessionRange) ? "N/A" : str.tostring(beiCurrentSessionRange, format.mintick) + " pts"
-string beiSessionRangeIndexText = na(beiSessionRangeIndex) ? "N/A" : str.tostring(beiSessionRangeIndex, "#.##") + " × ATR"
-string beiChopScoreText = beiChopReady ? str.tostring(beiChopScoreHTF, "#") + "/100" + (beiChopFilterEnabled ? " | ON" : " | INFO") : "N/A"
+string beiSessionRangeIndexText = na(beiSessionRangeIndex) ? "N/A" : str.tostring(beiSessionRangeIndex, "#.##")
+string beiChopScoreText = beiChopReady ? str.tostring(beiChopScoreHTF, "#") + "/100" : "N/A"
 color beiChopScoreColor = not beiChopReady ? color.silver : beiChopScoreHTF > float(beiChopMaximum) ? color.red : color.lime
 
 int activeSessionTP1Wins = inPMSession ? pmSessionTP1Wins : inNYSession ? nySessionTP1Wins : 0
