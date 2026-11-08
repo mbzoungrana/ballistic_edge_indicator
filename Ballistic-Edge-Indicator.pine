@@ -948,6 +948,7 @@ float relativeVolume = volumeAverage > 0.0 ? volume / volumeAverage : 0.0
 float volumeEfficiencyNetMove = close - close[effectiveVolumeEfficiencyLookback]
 float volumeEfficiencyPath = ta.sma(math.abs(close - close[1]), effectiveVolumeEfficiencyLookback) * float(effectiveVolumeEfficiencyLookback)
 float volumeDirectionalEfficiency = volumeEfficiencyPath > 0.0 ? math.abs(volumeEfficiencyNetMove) / volumeEfficiencyPath : 0.0
+
 float candleRangeATR = currentATR > 0.0 ? (high - low) / currentATR : 0.0
 float volumeTrendAverage = ta.sma(volume, volumeQualityTrendLength)
 bool volumeTrendRising = volumeTrendAverage > volumeTrendAverage[1]
@@ -1896,7 +1897,8 @@ if pmSessionStarted
     pmSessionGrossProfit := 0.0
     pmSessionGrossLoss := 0.0
     pmSessionTP1Wins := 0
-    pmSessionTP2Wins := 0    pmSessionWins := 0
+    pmSessionTP2Wins := 0
+    pmSessionWins := 0
     pmSessionCompletedTrades := 0
     array.clear(pmReportDirections)
     array.clear(pmReportEntries)
@@ -2845,7 +2847,8 @@ if createLongBox or createShortBox
 // LONG: price must reach Entry + X. SHORT: price must reach Entry - X.
 // Once qualified, it stays latched while the associated stored trade box remains.
 if commitmentTradeActive and not commitmentPanelQualified
-    // Use the bar's actual favorable excursion, not only its close. Once the    // configured entry-distance threshold is touched, varip latches qualification
+    // Use the bar's actual favorable excursion, not only its close. Once the
+    // configured entry-distance threshold is touched, varip latches qualification
     // across realtime tick rollback so the panel cannot flicker on/off intrabar.
     float qualificationMovePoints = commitmentTradeDirection == 1 ? high - commitmentEntry : commitmentEntry - low
     if qualificationMovePoints >= commitmentDPOThreshold
@@ -3794,7 +3797,8 @@ f_renderDashboard() =>
             table.cell(dashboard, 2, analyticsHeaderRow + 1, flipMirrorModeActive ? "N/A" : premiumFeatures ? f_sessionCPLText(activeSessionTP1CPL) : "PREMIUM", text_color=flipMirrorModeActive ? color.silver : premiumFeatures ? f_pnlColor(activeSessionTP1CPL) : color.silver, text_size=tableTextSize)
             table.cell(dashboard, 0, analyticsHeaderRow + 2, "TP2", text_color=tp2Color, text_size=tableTextSize)
             table.cell(dashboard, 1, analyticsHeaderRow + 2, flipMirrorModeActive ? "N/A" : activeSessionTP2WinRateText, text_color=flipMirrorModeActive ? color.silver : activeSessionTP2WinRateColor, text_size=tableTextSize)
-            table.cell(dashboard, 2, analyticsHeaderRow + 2, flipMirrorModeActive ? "N/A" : premiumFeatures ? f_sessionCPLText(activeSessionTP2CPL) : "PREMIUM", text_color=flipMirrorModeActive ? color.silver : premiumFeatures ? f_pnlColor(activeSessionTP2CPL) : color.silver, text_size=tableTextSize)            table.cell(dashboard, 0, analyticsHeaderRow + 3, "TP3", text_color=tp3Color, text_size=tableTextSize)
+            table.cell(dashboard, 2, analyticsHeaderRow + 2, flipMirrorModeActive ? "N/A" : premiumFeatures ? f_sessionCPLText(activeSessionTP2CPL) : "PREMIUM", text_color=flipMirrorModeActive ? color.silver : premiumFeatures ? f_pnlColor(activeSessionTP2CPL) : color.silver, text_size=tableTextSize)
+            table.cell(dashboard, 0, analyticsHeaderRow + 3, "TP3", text_color=tp3Color, text_size=tableTextSize)
             table.cell(dashboard, 1, analyticsHeaderRow + 3, flipMirrorModeActive ? "N/A" : activeSessionTP3WinRateText, text_color=flipMirrorModeActive ? color.silver : activeSessionTP3WinRateColor, text_size=tableTextSize)
             table.cell(dashboard, 2, analyticsHeaderRow + 3, flipMirrorModeActive ? "N/A" : premiumFeatures ? f_sessionCPLText(activeSessionTP3CPL) : "PREMIUM", text_color=flipMirrorModeActive ? color.silver : premiumFeatures ? f_pnlColor(activeSessionTP3CPL) : color.silver, text_size=tableTextSize)
 
