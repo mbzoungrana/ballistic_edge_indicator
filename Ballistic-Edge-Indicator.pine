@@ -76,6 +76,10 @@ volumeQualityChopEfficiency = input.float(0.25, "High-Volume Chop Max Efficiency
 GROUP_EEM_CONTEXT = "FREE — 2B. EEM Context and Chop"
 beiPrepMinutes = input.int(0, "Session Preparation Delay (minutes)", minval=0, maxval=120, group=GROUP_EEM_CONTEXT,
      tooltip="0: preserve immediate trade-box creation. X>0: do not print a trade box during the first X minutes of each NY or PM session. Signals during preparation are skipped, not queued. This is session-open-based, not feed-connect-based.")
+beiSessionLockoutEnabled = input.bool(false, "Enable Session Overtrading Lockout", group=GROUP_EEM_CONTEXT,
+     tooltip="When ON, prevent new trade boxes after the configured number of hours from the NY (09:30 ET) or PM (18:00 ET) session opening. Existing boxes and trades remain unchanged; skipped signals are not queued.")
+beiSessionLockoutHours = input.int(3, "Session Lockout After (hours)", minval=1, maxval=12, group=GROUP_EEM_CONTEXT, active=beiSessionLockoutEnabled,
+     tooltip="For example, 3 blocks new trade boxes from 12:30 ET in NY and 21:00 ET in PM. The limit resets at each session opening.")
 beiChopFilterEnabled = input.bool(false, "Enable EEM Composite Chop Filter", group=GROUP_EEM_CONTEXT,
      tooltip="When ON, block new trade boxes if the completed higher-timeframe composite chop score is above its maximum or context is not ready. The score is displayed even when this filter is OFF.")
 beiChopTF = input.timeframe("15", "Chop Context Timeframe", group=GROUP_EEM_CONTEXT)
@@ -1635,6 +1639,7 @@ else if inPMSession
     int beiPMBaseTime = hour(time, "America/New_York") >= 18 ? time : time - 24 * 60 * 60 * 1000
     beiSessionStart := timestamp("America/New_York", year(beiPMBaseTime, "America/New_York"), month(beiPMBaseTime, "America/New_York"), dayofmonth(beiPMBaseTime, "America/New_York"), 18, 0)
 bool beiSessionPrepReady = beiPrepMinutes == 0 or na(beiSessionStart) or time >= beiSessionStart + beiPrepMinutes * 60 * 1000
+bool beiSessionWithinLockoutWindow = not beiSessionLockoutEnabled or na(beiSessionStart) or time < beiSessionStart + beiSessionLockoutHours * 60 * 60 * 1000
 
 if nySessionStarted
     nySessionGeneration += 1
@@ -2638,10 +2643,10 @@ plotshape(showUnlockedSellArrow and markerSizeInput == "Large", title="DPO Sell 
 
 // Every valid trade is generated and accounted for regardless of the selected
 // display mode. The display dropdown is applied later as a visibility-only rule.
-// Both optional gates operate ONLY at box creation, after the original
+// The optional gates operate ONLY at box creation, after the original
 // DPO/trend/signal logic. Triangle signals, alertconditions and existing
 // active trades are unchanged when a box is suppressed.
-bool beiContextAllowsNewBox = beiSessionPrepReady and beiChopAllowsBox
+bool beiContextAllowsNewBox = beiSessionPrepReady and beiSessionWithinLockoutWindow and beiChopAllowsBox
 bool createLongBox = showTradeBoxes and showBuySignals and buySignal and beiContextAllowsNewBox
 bool createShortBox = showTradeBoxes and showSellSignals and sellSignal and beiContextAllowsNewBox
 
